@@ -1,8 +1,8 @@
-using FootballWhackaMolePrototype.Event;
-using FootballWhackaMolePrototype.Mole;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using FootballWhackaMolePrototype.Event;
+using FootballWhackaMolePrototype.Mole;
 
 
 namespace FootballWhackaMolePrototype.Gameplay
@@ -47,11 +47,24 @@ namespace FootballWhackaMolePrototype.Gameplay
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
+        private void SubscribeToEvents()
+        {
+            _eventBusServiceObj.Subscribe<RestartGameEvent>(HandleRestartGame);
+        }
+
+        private void UnsubscribeToEvents()
+        {
+            if (_eventBusServiceObj != null)
+            {
+                _eventBusServiceObj.Unsubscribe<RestartGameEvent>(HandleRestartGame);
+            }
+        }
 
         public void Initialize(MolePoolService molePoolService, EventBusService eventBusService)
         {
             _molePoolServiceObj = molePoolService;
             _eventBusServiceObj = eventBusService;
+            SubscribeToEvents();
             InitializeSpawnPoints();
         }
 
@@ -81,11 +94,20 @@ namespace FootballWhackaMolePrototype.Gameplay
 
         private IEnumerator GameplayRoutine()
         {
-            float elapsedTime = 0f;
+            _remainingTime = _sessionDuration;
+            int lastDisplayedSecond = -1;
 
-            while (elapsedTime < _sessionDuration)
+            while (_remainingTime > 0f)
             {
-                elapsedTime += Time.deltaTime;
+                _remainingTime -= Time.deltaTime;
+                _remainingTime = Mathf.Max(_remainingTime, 0f);
+                int displayedSecond = Mathf.CeilToInt(_remainingTime);
+
+                if (displayedSecond != lastDisplayedSecond)
+                {
+                    lastDisplayedSecond = displayedSecond;
+                    RaiseGameTimerUpdatedEvent(_remainingTime);
+                }
 
                 yield return null;
             }
@@ -134,7 +156,7 @@ namespace FootballWhackaMolePrototype.Gameplay
 
         private MoleTypeEnum GetRandomMoleType()
         {
-            return Random.value < _fastMoleChanceRate ? MoleTypeEnum.Normal : MoleTypeEnum.Fast;
+            return Random.value < _fastMoleChanceRate ? MoleTypeEnum.Fast : MoleTypeEnum.Normal;
         }
 
         private int GetRandomAvailableSpawnPointIndex()
@@ -196,15 +218,17 @@ namespace FootballWhackaMolePrototype.Gameplay
 
             ReturnAllActiveMoles();
             ResetSpawnPoints();
-            _gameplayRoutine = null;
-
             Debug.Log("Game Over");
         }
 
-        private void RestartGame()
+        private void HandleRestartGame(RestartGameEvent eventData)
+        {
+            RestartGameplay();
+        }
+
+        private void RestartGameplay()
         {
             EndGame();
-            ReturnAllActiveMoles();
             StartGameplay();
         }
 
@@ -221,7 +245,6 @@ namespace FootballWhackaMolePrototype.Gameplay
             }
 
             _activeMoles.Clear();
-            ResetSpawnPoints();
         }
 
         private void ResetSpawnPoints()
@@ -233,6 +256,16 @@ namespace FootballWhackaMolePrototype.Gameplay
 
                 _spawnPointAvailability[spawnPoint] = true;
             }
+        }
+
+        private void RaiseGameTimerUpdatedEvent(float remainingTime)
+        {
+            _eventBusServiceObj.Publish(new GameTimerUpdatedEvent(remainingTime));
+        }
+
+        private void OnDestroy()
+        {
+            UnsubscribeToEvents();
         }
     }
 }

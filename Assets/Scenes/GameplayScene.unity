@@ -163,6 +163,7 @@ GameObject:
   - component: {fileID: 157662918}
   - component: {fileID: 157662917}
   - component: {fileID: 157662916}
+  - component: {fileID: 157662920}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -254,6 +255,20 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &157662920
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 157662915}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a874db41be9630040a33d2a03ad2d0dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FootballWhackaMolePrototype.UI.UIManager
+  _timerText: {fileID: 1027292451}
+  _restartButton: {fileID: 1927446678}
 --- !u!1 &184954180
 GameObject:
   m_ObjectHideFlags: 0
