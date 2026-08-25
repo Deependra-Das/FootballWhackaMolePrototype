@@ -20,12 +20,17 @@ namespace FootballWhackaMolePrototype.Player
         [Header("Football")]
         [SerializeField] private Rigidbody _football;
 
+        [Header("Trajectory Preview")]
+        [SerializeField] private LineRenderer _trajectoryLine;
+        [SerializeField] private int _trajectoryPointCount = 50;
+        [SerializeField] private float _trajectoryTimeStep = 0.05f;
+
         private InputActionMap _playerActionMap;
         private InputAction _touchPressAction;
         private InputAction _touchPositionAction;
 
         private Vector2 _swipeStartPosition;
-
+        private bool _isAiming;
 
         private void Awake()
         {
@@ -33,6 +38,7 @@ namespace FootballWhackaMolePrototype.Player
             _playerActionMap =_inputActionAsset.FindActionMap("Player", true);
             _touchPressAction = _playerActionMap.FindAction("TouchPress", true);
             _touchPositionAction = _playerActionMap.FindAction("TouchPosition", true);
+            _trajectoryLine.enabled = false;
         }
 
         private void OnEnable()
@@ -51,13 +57,25 @@ namespace FootballWhackaMolePrototype.Player
             _playerActionMap.Disable();
         }
 
+        private void Update()
+        {
+            if (!_isAiming)
+                return;
+
+            UpdateTrajectoryPreview();
+        }
+
         private void HandleTouchStarted(InputAction.CallbackContext context)
         {
             _swipeStartPosition = _touchPositionAction.ReadValue<Vector2>();
+            _isAiming = true;
+            _trajectoryLine.enabled = false;
         }
 
         private void HandleTouchReleased(InputAction.CallbackContext context)
         {
+            _isAiming = false;
+            _trajectoryLine.enabled = false;
             Vector2 swipeEndPosition = _touchPositionAction.ReadValue<Vector2>();
             Vector2 swipe = swipeEndPosition - _swipeStartPosition;
 
@@ -100,6 +118,47 @@ namespace FootballWhackaMolePrototype.Player
             launchVelocity.y = _verticalLaunchSpeed;
 
             return launchVelocity;
+        }
+
+        private void UpdateTrajectoryPreview()
+        {
+            Vector2 currentTouchPosition =_touchPositionAction.ReadValue<Vector2>();
+            Vector2 swipe = currentTouchPosition - _swipeStartPosition;
+
+            if (swipe.magnitude < _minSwipeDistance)
+            {
+                _trajectoryLine.enabled = false;
+                return;
+            }
+
+            swipe = Vector2.ClampMagnitude(swipe, _maxSwipeDistance);
+
+            if (swipe.y <= 0f)
+            {
+                _trajectoryLine.enabled = false;
+                return;
+            }
+
+            Vector3 launchVelocity = CalculateLaunchVelocity(swipe);
+            DrawTrajectory( _football.position, launchVelocity);
+        }
+
+        private void DrawTrajectory( Vector3 startPosition, Vector3 launchVelocity)
+        {
+            _trajectoryLine.enabled = true;
+            _trajectoryLine.positionCount = _trajectoryPointCount;
+
+            for (int i = 0; i < _trajectoryPointCount; i++)
+            {
+                float time = i * _trajectoryTimeStep;
+                Vector3 point = CalculateTrajectoryPoint(startPosition, launchVelocity, time );
+                _trajectoryLine.SetPosition(i, point );
+            }
+        }
+
+        private Vector3 CalculateTrajectoryPoint(Vector3 startPosition, Vector3 launchVelocity, float time)
+        {
+            return startPosition + launchVelocity * time + 0.5f * Physics.gravity * time * time;
         }
     }
 }
