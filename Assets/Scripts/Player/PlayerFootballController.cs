@@ -13,11 +13,12 @@ namespace FootballWhackaMolePrototype.Player
         [SerializeField] private float _maxSwipeDistance = 600f;
 
         [Header("Shooting")]
-        [SerializeField] private float _forwardSpeed = 0.25f;
+        [SerializeField] private float _minLaunchSpeed = 8f;
+        [SerializeField] private float _maxLaunchSpeed = 15f;
+        [SerializeField] private float _verticalLaunchSpeed = 10f;
 
         [Header("Football")]
         [SerializeField] private Rigidbody _football;
-
 
         private InputActionMap _playerActionMap;
         private InputAction _touchPressAction;
@@ -25,9 +26,11 @@ namespace FootballWhackaMolePrototype.Player
 
         private Vector2 _swipeStartPosition;
 
+
         private void Awake()
         {
-            _playerActionMap = _inputActionAsset.FindActionMap("Player", true);
+            _football.useGravity = false;
+            _playerActionMap =_inputActionAsset.FindActionMap("Player", true);
             _touchPressAction = _playerActionMap.FindAction("TouchPress", true);
             _touchPositionAction = _playerActionMap.FindAction("TouchPosition", true);
         }
@@ -77,17 +80,26 @@ namespace FootballWhackaMolePrototype.Player
 
         private void ShootFootball(Vector2 swipe)
         {
-            Vector2 swipeDirection = swipe.normalized;
-
-            float swipeStrength = Mathf.Clamp(swipe.magnitude, _minSwipeDistance, _maxSwipeDistance);
-            float speed = swipeStrength * _forwardSpeed;
-
-            Vector3 launchDirection = new Vector3(swipeDirection.x, 0f, swipeDirection.y);
-            Vector3 launchVelocity = launchDirection * speed;
+            Vector3 launchVelocity = CalculateLaunchVelocity(swipe);
 
             _football.linearVelocity = Vector3.zero;
             _football.angularVelocity = Vector3.zero;
+            _football.useGravity = true;
             _football.linearVelocity = launchVelocity;
+        }
+
+        private Vector3 CalculateLaunchVelocity(Vector2 swipe)
+        {
+            Vector2 swipeDirection = swipe.normalized;
+
+            float swipeStrength = Mathf.InverseLerp(_minSwipeDistance, _maxSwipeDistance, swipe.magnitude);
+            Vector3 launchDirection =new Vector3(swipeDirection.x, 0f, swipeDirection.y).normalized;
+
+            float launchSpeed = Mathf.Lerp( _minLaunchSpeed, _maxLaunchSpeed, swipeStrength);
+            Vector3 launchVelocity = launchDirection * launchSpeed;
+            launchVelocity.y = _verticalLaunchSpeed;
+
+            return launchVelocity;
         }
     }
 }
