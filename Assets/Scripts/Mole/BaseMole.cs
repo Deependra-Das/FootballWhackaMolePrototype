@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using FootballWhackaMolePrototype.Gameplay;
 
 namespace FootballWhackaMolePrototype.Mole
 {
@@ -16,27 +17,24 @@ namespace FootballWhackaMolePrototype.Mole
         public bool IsVisible => _isVisible;
 
         private Coroutine _moleRoutine;
-
+        private int _spawnPointIndex;
         private Vector3 _hiddenPosition;
         private Vector3 _visiblePosition;
+
+        private GameplayManager _gameplayManager;
 
         public abstract int Score { get; }
 
         protected abstract float VisibleDuration { get; }
 
-        protected virtual void Awake()
+        public virtual void Initialize(GameplayManager gameplayManager, int spawnPointIndex)
         {
+            _gameplayManager = gameplayManager;
+            _spawnPointIndex = spawnPointIndex;
+            _isVisible = false;
             _hiddenPosition = transform.localPosition;
             _visiblePosition = _hiddenPosition + Vector3.up * _popUpHeight;
-        }
 
-        private void Start()
-        {
-            Show();
-        }
-
-        public virtual void Show()
-        {
             _moleRoutine = StartCoroutine(MoleRoutine());
         }
 
@@ -50,8 +48,8 @@ namespace FootballWhackaMolePrototype.Mole
             yield return MoveMole(_visiblePosition, _hiddenPosition, _popDownDuration);
             _isVisible = false;
 
-            StopCoroutine(_moleRoutine);
-            Destroy(gameObject);
+            _moleRoutine = null;
+            _gameplayManager.DespawnMole(this, _spawnPointIndex);
         }
 
         private IEnumerator MoveMole(Vector3 start, Vector3 target, float duration)
@@ -69,6 +67,17 @@ namespace FootballWhackaMolePrototype.Mole
             }
 
             transform.localPosition = target;
+        }
+
+        protected virtual void OnDisable()
+        {
+            if (_moleRoutine != null)
+            {
+                StopCoroutine(_moleRoutine);
+                _moleRoutine = null;
+            }
+
+            _isVisible = false;
         }
     }
 }
