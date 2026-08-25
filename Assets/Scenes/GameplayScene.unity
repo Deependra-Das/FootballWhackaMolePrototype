@@ -510,7 +510,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d8955aeab1baf64391f2acc40cca748, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FootballWhackaMolePrototype.Player.PlayerFootballController
-  _inputActionAsset: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  _inputActionAsset: {fileID: -944628639613478452, guid: a4488480b7fc71e4f86c86f078a285bb, type: 3}
   _minSwipeDistance: 50
   _maxSwipeDistance: 600
   _minLaunchSpeed: 8
