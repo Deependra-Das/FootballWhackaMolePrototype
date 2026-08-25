@@ -2,6 +2,7 @@ using UnityEngine;
 using FootballWhackaMolePrototype.Event;
 using FootballWhackaMolePrototype.Gameplay;
 using FootballWhackaMolePrototype.Mole;
+using FootballWhackaMolePrototype.UI;
 
 namespace FootballWhackaMolePrototype.Main
 {
@@ -31,6 +32,7 @@ namespace FootballWhackaMolePrototype.Main
         {
             InitializeServices();
             RegisterServices();
+            UIManager.Instance.Initialize(_eventBusService);
             GameplayManager.Instance.Initialize(_molePoolService, _eventBusService);
             GameplayManager.Instance.StartGameplay();
         }
