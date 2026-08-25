@@ -12,6 +12,13 @@ namespace FootballWhackaMolePrototype.Player
         [SerializeField] private float _minSwipeDistance = 50f;
         [SerializeField] private float _maxSwipeDistance = 600f;
 
+        [Header("Shooting")]
+        [SerializeField] private float _forwardSpeed = 0.25f;
+
+        [Header("Football")]
+        [SerializeField] private Rigidbody _football;
+
+
         private InputActionMap _playerActionMap;
         private InputAction _touchPressAction;
         private InputAction _touchPositionAction;
@@ -65,7 +72,22 @@ namespace FootballWhackaMolePrototype.Player
                 return;
             }
 
-            Debug.Log("Valid Swipe!");
+            ShootFootball(swipe);
+        }
+
+        private void ShootFootball(Vector2 swipe)
+        {
+            Vector2 swipeDirection = swipe.normalized;
+
+            float swipeStrength = Mathf.Clamp(swipe.magnitude, _minSwipeDistance, _maxSwipeDistance);
+            float speed = swipeStrength * _forwardSpeed;
+
+            Vector3 launchDirection = new Vector3(swipeDirection.x, 0f, swipeDirection.y);
+            Vector3 launchVelocity = launchDirection * speed;
+
+            _football.linearVelocity = Vector3.zero;
+            _football.angularVelocity = Vector3.zero;
+            _football.linearVelocity = launchVelocity;
         }
     }
 }
