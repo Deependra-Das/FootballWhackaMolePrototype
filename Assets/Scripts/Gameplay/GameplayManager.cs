@@ -1,19 +1,37 @@
-using UnityEngine;
-using System.Collections.Generic;
 using FootballWhackaMolePrototype.Event;
 using FootballWhackaMolePrototype.Mole;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 
 namespace FootballWhackaMolePrototype.Gameplay
 {
     public class GameplayManager : MonoBehaviour
     {
+        [Header("Gameplay")]
+        [SerializeField] private float _sessionDuration = 60f;
+
         [Header("Mole Spawn Points")]
         [SerializeField] private List<Transform> _moleSpawnPoints;
+
+        [Header("Mole Spawn")]
+        [SerializeField] private float _moleSpawnInterval = 2.5f;
+
+        [SerializeField, Range(0f, 1f)]
+        private float _fastMoleChanceRate = 0.25f;
 
         private Dictionary<Transform, bool> _spawnPointAvailability;
         private MolePoolService _molePoolServiceObj;
         private EventBusService _eventBusServiceObj;
+
+        private float _remainingTime;
+        private float _moleSpawnTimer;
+        private bool _isPlaying;
+
+        private Coroutine _gameplayRoutine;
+        private Coroutine _moleSpawnRoutine;
+
         public static GameplayManager Instance { get; private set; }
 
         private void Awake()
@@ -50,7 +68,40 @@ namespace FootballWhackaMolePrototype.Gameplay
 
         public void StartGameplay()
         {
-            SpawnMole();
+            if (_isPlaying)
+                return;
+
+            _isPlaying = true;
+
+            _gameplayRoutine = StartCoroutine(GameplayRoutine());
+            _moleSpawnRoutine = StartCoroutine(MoleSpawnRoutine());
+        }
+
+        private IEnumerator GameplayRoutine()
+        {
+            float elapsedTime = 0f;
+
+            while (elapsedTime < _sessionDuration)
+            {
+                elapsedTime += Time.deltaTime;
+
+                yield return null;
+            }
+
+            EndGame();
+        }
+
+        private IEnumerator MoleSpawnRoutine()
+        {
+            while (_isPlaying)
+            {
+                yield return new WaitForSeconds(_moleSpawnInterval);
+
+                if (!_isPlaying)
+                    yield break;
+
+                SpawnMole();
+            }
         }
 
         private void SpawnMole()
@@ -80,7 +131,7 @@ namespace FootballWhackaMolePrototype.Gameplay
 
         private MoleTypeEnum GetRandomMoleType()
         {
-            return Random.value < 0.5f ? MoleTypeEnum.Normal : MoleTypeEnum.Fast;
+            return Random.value < _fastMoleChanceRate ? MoleTypeEnum.Normal : MoleTypeEnum.Fast;
         }
 
         private int GetRandomAvailableSpawnPointIndex()
@@ -119,6 +170,22 @@ namespace FootballWhackaMolePrototype.Gameplay
             Transform spawnPoint = _moleSpawnPoints[spawnPointIndex];
             _spawnPointAvailability[spawnPoint] = true;
             _molePoolServiceObj.ReturnMole(mole);
+        }
+
+        private void EndGame()
+        {
+            if (!_isPlaying) return;
+
+            _isPlaying = false;
+
+            if (_moleSpawnRoutine != null)
+            {
+                StopCoroutine(_moleSpawnRoutine);
+                _moleSpawnRoutine = null;
+            }
+
+            _gameplayRoutine = null;
+            Debug.Log("Game Over");
         }
     }
 }

@@ -475,6 +475,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79e98b87768272848b07655e8874e331, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FootballWhackaMolePrototype.Gameplay.GameplayManager
+  _sessionDuration: 60
   _moleSpawnPoints:
   - {fileID: 1475724985}
   - {fileID: 1815305595}
@@ -482,6 +483,8 @@ MonoBehaviour:
   - {fileID: 1476626987}
   - {fileID: 1857706692}
   - {fileID: 1861956820}
+  _moleSpawnInterval: 2.5
+  _fastMoleChanceRate: 0.25
 --- !u!4 &464513251
 Transform:
   m_ObjectHideFlags: 0
