@@ -22,6 +22,8 @@ namespace FootballWhackaMolePrototype.Gameplay
         private float _fastMoleChanceRate = 0.25f;
 
         private Dictionary<Transform, bool> _spawnPointAvailability;
+        private readonly List<BaseMole> _activeMoles = new();
+
         private MolePoolService _molePoolServiceObj;
         private EventBusService _eventBusServiceObj;
 
@@ -127,6 +129,7 @@ namespace FootballWhackaMolePrototype.Gameplay
             _spawnPointAvailability[spawnPoint] = false;
             mole.transform.SetPositionAndRotation(spawnPoint.position, spawnPoint.rotation);
             mole.Initialize(this, spawnPointIndex);
+            _activeMoles.Add(mole);
         }
 
         private MoleTypeEnum GetRandomMoleType()
@@ -169,6 +172,7 @@ namespace FootballWhackaMolePrototype.Gameplay
 
             Transform spawnPoint = _moleSpawnPoints[spawnPointIndex];
             _spawnPointAvailability[spawnPoint] = true;
+            _activeMoles.Remove(mole);
             _molePoolServiceObj.ReturnMole(mole);
         }
 
@@ -177,6 +181,12 @@ namespace FootballWhackaMolePrototype.Gameplay
             if (!_isPlaying) return;
 
             _isPlaying = false;
+      
+            if (_gameplayRoutine != null)
+            {
+                StopCoroutine(_gameplayRoutine);
+                _gameplayRoutine = null;
+            }
 
             if (_moleSpawnRoutine != null)
             {
@@ -184,8 +194,45 @@ namespace FootballWhackaMolePrototype.Gameplay
                 _moleSpawnRoutine = null;
             }
 
+            ReturnAllActiveMoles();
+            ResetSpawnPoints();
             _gameplayRoutine = null;
+
             Debug.Log("Game Over");
+        }
+
+        private void RestartGame()
+        {
+            EndGame();
+            ReturnAllActiveMoles();
+            StartGameplay();
+        }
+
+        private void ReturnAllActiveMoles()
+        {
+            for (int i = _activeMoles.Count - 1; i >= 0; i--)
+            {
+                BaseMole mole = _activeMoles[i];
+
+                if (mole == null)
+                    continue;
+
+                _molePoolServiceObj.ReturnMole(mole);
+            }
+
+            _activeMoles.Clear();
+            ResetSpawnPoints();
+        }
+
+        private void ResetSpawnPoints()
+        {
+            foreach (Transform spawnPoint in _moleSpawnPoints)
+            {
+                if (spawnPoint == null)
+                    continue;
+
+                _spawnPointAvailability[spawnPoint] = true;
+            }
         }
     }
 }
