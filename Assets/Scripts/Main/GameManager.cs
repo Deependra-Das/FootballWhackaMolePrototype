@@ -1,14 +1,19 @@
 using UnityEngine;
 using FootballWhackaMolePrototype.Event;
+using FootballWhackaMolePrototype.Gameplay;
+using FootballWhackaMolePrototype.Mole;
 
 namespace FootballWhackaMolePrototype.Main
 {
     public class GameManager : MonoBehaviour
     {
+        [SerializeField] private MoleData_SO _moleData_SO;
+        [SerializeField] private Transform _poolContainer;
         public static GameManager Instance { get; private set; }
 
         public ServiceLocator Services { get; private set; }
         private EventBusService _eventBusService;
+        private MolePoolService _molePoolService;
 
         private void Awake()
         {
@@ -26,12 +31,15 @@ namespace FootballWhackaMolePrototype.Main
         {
             InitializeServices();
             RegisterServices();
+            GameplayManager.Instance.Initialize(_molePoolService, _eventBusService);
+            GameplayManager.Instance.StartGameplay();
         }
 
         private void InitializeServices()
         {
             Services = new ServiceLocator();
             _eventBusService = new EventBusService();
+            _molePoolService = new MolePoolService(_moleData_SO, _poolContainer);
         }
 
         private void RegisterServices()
