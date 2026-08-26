@@ -160,5 +160,12 @@ namespace FootballWhackaMolePrototype.Player
         {
             return startPosition + launchVelocity * time + 0.5f * Physics.gravity * time * time;
         }
+
+        public void ResetFootball()
+        {
+            _football.linearVelocity = Vector3.zero;
+            _football.angularVelocity = Vector3.zero;
+            _football.useGravity = false;
+        }
     }
 }

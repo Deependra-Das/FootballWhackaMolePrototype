@@ -91,6 +91,7 @@ namespace FootballWhackaMolePrototype.Gameplay
             _isPlaying = true;
 
             _scoreServiceObj.ResetScore();
+            PlayerManager.Instance.SpawnPlayer();
             _gameplayRoutine = StartCoroutine(GameplayRoutine());
             _moleSpawnRoutine = StartCoroutine(MoleSpawnRoutine());
         }
