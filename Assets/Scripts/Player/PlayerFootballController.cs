@@ -31,6 +31,7 @@ namespace FootballWhackaMolePrototype.Player
 
         private Vector2 _swipeStartPosition;
         private bool _isAiming;
+        private bool _inputLocked;
 
         private void Awake()
         {
@@ -67,6 +68,8 @@ namespace FootballWhackaMolePrototype.Player
 
         private void HandleTouchStarted(InputAction.CallbackContext context)
         {
+            if (_inputLocked) return;
+
             _swipeStartPosition = _touchPositionAction.ReadValue<Vector2>();
             _isAiming = true;
             _trajectoryLine.enabled = false;
@@ -74,6 +77,8 @@ namespace FootballWhackaMolePrototype.Player
 
         private void HandleTouchReleased(InputAction.CallbackContext context)
         {
+            if (_inputLocked) return;
+
             _isAiming = false;
             _trajectoryLine.enabled = false;
             Vector2 swipeEndPosition = _touchPositionAction.ReadValue<Vector2>();
@@ -99,6 +104,9 @@ namespace FootballWhackaMolePrototype.Player
         private void ShootFootball(Vector2 swipe)
         {
             Vector3 launchVelocity = CalculateLaunchVelocity(swipe);
+
+            _inputLocked = true;
+            _isAiming = false;
 
             _football.linearVelocity = Vector3.zero;
             _football.angularVelocity = Vector3.zero;
@@ -164,6 +172,7 @@ namespace FootballWhackaMolePrototype.Player
 
         public void ResetFootball()
         {
+            _inputLocked = false;
             _football.linearVelocity = Vector3.zero;
             _football.angularVelocity = Vector3.zero;
             _football.useGravity = false;
