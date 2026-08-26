@@ -35,9 +35,9 @@ namespace FootballWhackaMolePrototype.Mole
             _gameplayManager = gameplayManager;
             _spawnPointIndex = spawnPointIndex;
             _isVisible = false;
+            _hasBeenHit = false;
             _hiddenPosition = transform.localPosition;
             _visiblePosition = _hiddenPosition + Vector3.up * _popUpHeight;
-
             _moleRoutine = StartCoroutine(MoleRoutine());
         }
 
