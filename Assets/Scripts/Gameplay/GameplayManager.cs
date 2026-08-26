@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using FootballWhackaMolePrototype.Event;
 using FootballWhackaMolePrototype.Mole;
+using FootballWhackaMolePrototype.Score;
 
 
 namespace FootballWhackaMolePrototype.Gameplay
@@ -26,9 +27,9 @@ namespace FootballWhackaMolePrototype.Gameplay
 
         private MolePoolService _molePoolServiceObj;
         private EventBusService _eventBusServiceObj;
+        private ScoreService _scoreServiceObj;
 
         private float _remainingTime;
-        private float _moleSpawnTimer;
         private bool _isPlaying;
 
         private Coroutine _gameplayRoutine;
@@ -60,9 +61,10 @@ namespace FootballWhackaMolePrototype.Gameplay
             }
         }
 
-        public void Initialize(MolePoolService molePoolService, EventBusService eventBusService)
+        public void Initialize(MolePoolService molePoolService, ScoreService scoreService, EventBusService eventBusService)
         {
             _molePoolServiceObj = molePoolService;
+            _scoreServiceObj = scoreService;
             _eventBusServiceObj = eventBusService;
             SubscribeToEvents();
             InitializeSpawnPoints();
@@ -88,6 +90,7 @@ namespace FootballWhackaMolePrototype.Gameplay
 
             _isPlaying = true;
 
+            _scoreServiceObj.ResetScore();
             _gameplayRoutine = StartCoroutine(GameplayRoutine());
             _moleSpawnRoutine = StartCoroutine(MoleSpawnRoutine());
         }

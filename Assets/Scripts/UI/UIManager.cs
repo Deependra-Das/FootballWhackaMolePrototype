@@ -9,10 +9,8 @@ namespace FootballWhackaMolePrototype.UI
     {
         public static UIManager Instance { get; private set; }
 
-        [Header("Timer")]
         [SerializeField] private TMP_Text _timerText;
-
-        [Header("Game")]
+        [SerializeField] private TMP_Text _scoreText;
         [SerializeField] private Button _restartButton;
 
         private EventBusService _eventBusServiceObj;
@@ -32,6 +30,7 @@ namespace FootballWhackaMolePrototype.UI
         {
             _restartButton.onClick.AddListener(OnRestartButtonClicked);
             _eventBusServiceObj.Subscribe<GameTimerUpdatedEvent>(HandleTimerUpdated);
+            _eventBusServiceObj.Subscribe<ScoreUpdatedEvent>(HandleScoreUpdated);
         }
 
         private void UnsubscribeToEvents()
@@ -41,6 +40,7 @@ namespace FootballWhackaMolePrototype.UI
             if (_eventBusServiceObj != null)
             {
                 _eventBusServiceObj.Unsubscribe<GameTimerUpdatedEvent>(HandleTimerUpdated);
+                _eventBusServiceObj.Unsubscribe<ScoreUpdatedEvent>(HandleScoreUpdated);
             }
         }
 
@@ -54,6 +54,12 @@ namespace FootballWhackaMolePrototype.UI
         {
             int seconds = Mathf.CeilToInt(eventData.RemainingTime);
             _timerText.text = seconds.ToString();
+        }
+
+        private void HandleScoreUpdated(ScoreUpdatedEvent eventData)
+        {
+            int currentScore = eventData.CurrentScore;
+            _scoreText.text = currentScore.ToString();
         }
 
         private void OnRestartButtonClicked()
