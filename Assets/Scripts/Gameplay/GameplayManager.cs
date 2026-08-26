@@ -1,9 +1,10 @@
-using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 using FootballWhackaMolePrototype.Event;
 using FootballWhackaMolePrototype.Mole;
 using FootballWhackaMolePrototype.Score;
+using FootballWhackaMolePrototype.UI;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 
 namespace FootballWhackaMolePrototype.Gameplay
@@ -208,6 +209,7 @@ namespace FootballWhackaMolePrototype.Gameplay
                 return;
 
             _scoreServiceObj.UpdateScore(mole.Score);
+            GameplayFeedbackUIManager.Instance.ShowHitFeedback(mole.transform.position);
             DespawnMole(mole, spawnPointIndex);
             PlayerManager.Instance.HandleFootballHitMole();
         }

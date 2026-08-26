@@ -1,4 +1,5 @@
 using FootballWhackaMolePrototype.Player;
+using FootballWhackaMolePrototype.UI;
 using UnityEngine;
 
 public class PlayerManager : MonoBehaviour
@@ -65,11 +66,13 @@ public class PlayerManager : MonoBehaviour
         RespawnPlayer();
     }
 
-    public void HandleFootballMiss()
+    public void HandleFootballMiss(Vector3 missPosition)
     {
         if (!_isFootballShotInProgress)
             return;
 
+        _isFootballShotInProgress = false;
+        GameplayFeedbackUIManager.Instance.ShowMissFeedback(missPosition);
         RespawnPlayer();
     }
 

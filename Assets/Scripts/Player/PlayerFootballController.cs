@@ -174,7 +174,8 @@ namespace FootballWhackaMolePrototype.Player
             if (!collision.gameObject.CompareTag("Bounds"))
                 return;
 
-            PlayerManager.Instance.HandleFootballMiss();
+            Vector3 contactPosition = collision.GetContact(0).point;
+            PlayerManager.Instance.HandleFootballMiss(contactPosition);
         }
     }
 }
