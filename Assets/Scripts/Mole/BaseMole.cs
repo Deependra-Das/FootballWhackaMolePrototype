@@ -1,6 +1,7 @@
-using System.Collections;
 using UnityEngine;
+using System.Collections;
 using FootballWhackaMolePrototype.Gameplay;
+using FootballWhackaMolePrototype.Player;
 
 namespace FootballWhackaMolePrototype.Mole
 {
@@ -23,6 +24,8 @@ namespace FootballWhackaMolePrototype.Mole
 
         private GameplayManager _gameplayManager;
 
+        private bool _hasBeenHit;
+
         public abstract int Score { get; }
 
         protected abstract float VisibleDuration { get; }
@@ -32,9 +35,9 @@ namespace FootballWhackaMolePrototype.Mole
             _gameplayManager = gameplayManager;
             _spawnPointIndex = spawnPointIndex;
             _isVisible = false;
+            _hasBeenHit = false;
             _hiddenPosition = transform.localPosition;
             _visiblePosition = _hiddenPosition + Vector3.up * _popUpHeight;
-
             _moleRoutine = StartCoroutine(MoleRoutine());
         }
 
@@ -67,6 +70,33 @@ namespace FootballWhackaMolePrototype.Mole
             }
 
             transform.localPosition = target;
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            if (_hasBeenHit || !_isVisible) return;
+
+            PlayerFootballController player = other.GetComponent<PlayerFootballController>();
+
+            if (player == null) return;
+
+            HandleHit();
+        }
+
+        private void HandleHit()
+        {
+            if (_hasBeenHit) return;
+
+            _hasBeenHit = true;
+            _isVisible = false;
+
+            if (_moleRoutine != null)
+            {
+                StopCoroutine(_moleRoutine);
+                _moleRoutine = null;
+            }
+
+            _gameplayManager.HandleMoleHit(this, _spawnPointIndex);
         }
 
         protected virtual void OnDisable()

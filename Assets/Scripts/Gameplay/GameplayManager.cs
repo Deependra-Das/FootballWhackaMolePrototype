@@ -1,9 +1,10 @@
-using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 using FootballWhackaMolePrototype.Event;
 using FootballWhackaMolePrototype.Mole;
 using FootballWhackaMolePrototype.Score;
+using FootballWhackaMolePrototype.UI;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 
 namespace FootballWhackaMolePrototype.Gameplay
@@ -91,6 +92,7 @@ namespace FootballWhackaMolePrototype.Gameplay
             _isPlaying = true;
 
             _scoreServiceObj.ResetScore();
+            PlayerManager.Instance.SpawnPlayer();
             _gameplayRoutine = StartCoroutine(GameplayRoutine());
             _moleSpawnRoutine = StartCoroutine(MoleSpawnRoutine());
         }
@@ -201,6 +203,17 @@ namespace FootballWhackaMolePrototype.Gameplay
             _molePoolServiceObj.ReturnMole(mole);
         }
 
+        public void HandleMoleHit(BaseMole mole, int spawnPointIndex)
+        {
+            if (mole == null)
+                return;
+
+            _scoreServiceObj.UpdateScore(mole.Score);
+            GameplayFeedbackUIManager.Instance.ShowHitFeedback(mole.transform.position);
+            DespawnMole(mole, spawnPointIndex);
+            PlayerManager.Instance.HandleFootballHitMole();
+        }
+
         private void EndGame()
         {
             if (!_isPlaying) return;
@@ -221,6 +234,7 @@ namespace FootballWhackaMolePrototype.Gameplay
 
             ReturnAllActiveMoles();
             ResetSpawnPoints();
+            PlayerManager.Instance.CleanupPlayer();
             Debug.Log("Game Over");
         }
 

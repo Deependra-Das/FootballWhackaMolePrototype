@@ -104,6 +104,7 @@ namespace FootballWhackaMolePrototype.Player
             _football.angularVelocity = Vector3.zero;
             _football.useGravity = true;
             _football.linearVelocity = launchVelocity;
+            PlayerManager.Instance.RegisterShot();
         }
 
         private Vector3 CalculateLaunchVelocity(Vector2 swipe)
@@ -159,6 +160,22 @@ namespace FootballWhackaMolePrototype.Player
         private Vector3 CalculateTrajectoryPoint(Vector3 startPosition, Vector3 launchVelocity, float time)
         {
             return startPosition + launchVelocity * time + 0.5f * Physics.gravity * time * time;
+        }
+
+        public void ResetFootball()
+        {
+            _football.linearVelocity = Vector3.zero;
+            _football.angularVelocity = Vector3.zero;
+            _football.useGravity = false;
+        }
+
+        private void OnCollisionEnter(Collision collision)
+        {
+            if (!collision.gameObject.CompareTag("Bounds"))
+                return;
+
+            Vector3 contactPosition = collision.GetContact(0).point;
+            PlayerManager.Instance.HandleFootballMiss(contactPosition);
         }
     }
 }
