@@ -209,6 +209,7 @@ namespace FootballWhackaMolePrototype.Gameplay
 
             _scoreServiceObj.UpdateScore(mole.Score);
             DespawnMole(mole, spawnPointIndex);
+            PlayerManager.Instance.HandleFootballHitMole();
         }
 
         private void EndGame()

@@ -104,6 +104,7 @@ namespace FootballWhackaMolePrototype.Player
             _football.angularVelocity = Vector3.zero;
             _football.useGravity = true;
             _football.linearVelocity = launchVelocity;
+            PlayerManager.Instance.RegisterShot();
         }
 
         private Vector3 CalculateLaunchVelocity(Vector2 swipe)
@@ -166,6 +167,14 @@ namespace FootballWhackaMolePrototype.Player
             _football.linearVelocity = Vector3.zero;
             _football.angularVelocity = Vector3.zero;
             _football.useGravity = false;
+        }
+
+        private void OnCollisionEnter(Collision collision)
+        {
+            if (!collision.gameObject.CompareTag("Bounds"))
+                return;
+
+            PlayerManager.Instance.HandleFootballMiss();
         }
     }
 }
