@@ -201,6 +201,15 @@ namespace FootballWhackaMolePrototype.Gameplay
             _molePoolServiceObj.ReturnMole(mole);
         }
 
+        public void HandleMoleHit(BaseMole mole, int spawnPointIndex)
+        {
+            if (mole == null)
+                return;
+
+            _scoreServiceObj.UpdateScore(mole.Score);
+            DespawnMole(mole, spawnPointIndex);
+        }
+
         private void EndGame()
         {
             if (!_isPlaying) return;
