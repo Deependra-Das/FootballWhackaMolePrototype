@@ -232,6 +232,7 @@ namespace FootballWhackaMolePrototype.Gameplay
 
             ReturnAllActiveMoles();
             ResetSpawnPoints();
+            PlayerManager.Instance.CleanupPlayer();
             Debug.Log("Game Over");
         }
 

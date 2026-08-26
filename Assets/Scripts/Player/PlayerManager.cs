@@ -73,6 +73,17 @@ public class PlayerManager : MonoBehaviour
         RespawnPlayer();
     }
 
+    public void CleanupPlayer()
+    {
+        _isFootballShotInProgress = false;
+
+        if (_playerFootball == null)
+            return;
+
+        Destroy(_playerFootball.gameObject);
+        _playerFootball = null;
+    }
+
     private void OnDestroy()
     {
         if (Instance == this)
